@@ -10,8 +10,8 @@ package com.mycompany.estudiantee;
  */
 public class Main {
     public static void main(String[] args) {
-        Estudiantee e=new Estudiantee("David", "1005069875", "0999466053", "Los Ceibos");
-        System.out.println(e.toString());
+        Estudiante e=new Estudiante("David", "1005069875", "0999466053", "Los Ceibos", true);
+        e.imprimir();
         
     }
 }

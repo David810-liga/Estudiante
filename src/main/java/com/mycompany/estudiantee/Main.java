@@ -13,5 +13,8 @@ public class Main {
         Estudiante e=new Estudiante("David", "1005069875", "0999466053", "Los Ceibos", true);
         e.imprimir();
         
+        Estudiante e1=new Estudiante();
+        e1.setNombre("Oscar");
+        e1.imprimir();
     }
 }

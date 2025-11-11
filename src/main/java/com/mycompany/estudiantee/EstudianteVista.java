@@ -3,6 +3,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package com.mycompany.estudiantee;
+import java.awt.Color;
+import javax.swing.text.*;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -13,10 +16,99 @@ public class EstudianteVista extends javax.swing.JFrame {
     /**
      * Creates new form EstudianteVista
      */
+//Cuando se crea la ventana del programa (EstudianteVista), automáticamente:
+//initComponents()crea todos los botones, etiquetas y campos de texto (esto lo genera NetBeans).
+//inicializarId()muestra automáticamente el ID que le tocaría al nuevo estudiante.
+//configurarResaltadoVocales()activa el efecto que pinta las vocales de color en el campo del nombre.
     public EstudianteVista() {
-        initComponents();
-    }
+    initComponents();
+    inicializarId();             // muestra el id al abrir la ventana
+    configurarResaltadoVocales(); // activa el cambio de color en el nombre
+}
 
+    private void inicializarId() {
+    // Mostramos el siguiente id disponible (ya que en la clase Estudiante se incrementa en el constructor)
+    txtIdEstudiante.setText(String.valueOf(Estudiante.getIdEstudiante() + 1));
+
+    // Evitamos que se pueda editar
+    txtIdEstudiante.setEditable(false);
+    txtIdEstudiante.setFocusable(false); // no se puede seleccionar con TAB
+    txtIdEstudiante.setBackground(Color.WHITE); // para que no se vea gris
+}
+//Estudiante.getIdEstudiante() obtiene el último ID usado en la clase Estudiante.
+//Se le suma +1 para mostrar el siguiente ID disponible.
+//Luego se configura el campo txtIdEstudiante:
+//No editable (setEditable(false)), para que el usuario no lo cambie.
+//No seleccionable (setFocusable(false)), así no se puede mover con TAB.
+//Color blanco (setBackground(Color.WHITE)), para que no se vea gris.
+ //Resultado:
+//Cuando abres la ventana, ya aparece el próximo número de ID y el usuario no puede modificarlo.
+
+    
+// Método que pinta las vocales en rojo
+// Configura el evento para que el texto del nombre se coloree cuando el usuario termina de escribir
+private void configurarResaltadoVocales() {
+
+    // Cuando el usuario sale del campo de texto (pierde el foco)
+    txtNombre.addFocusListener(new java.awt.event.FocusAdapter() {
+        @Override
+        public void focusLost(java.awt.event.FocusEvent e) {
+            resaltarVocales();
+        }
+    });
+
+    // Cuando el usuario presiona ENTER dentro del campo
+    txtNombre.addKeyListener(new java.awt.event.KeyAdapter() {
+        @Override
+        public void keyPressed(java.awt.event.KeyEvent e) {
+            if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) {
+                resaltarVocales();
+            }
+        }
+    });
+}
+//Aquí se agregan eventos al campo txtNombre:
+//Cuando el usuario sale del campo (deja de escribir), se llama a resaltarVocales().
+//Cuando presiona ENTER, también se llama a resaltarVocales().
+//Es decir, cada vez que terminas de escribir el nombre, las vocales se colorean automáticamente.
+
+private void resaltarVocales() {
+    SwingUtilities.invokeLater(() -> {
+        StyledDocument doc = txtNombre.getStyledDocument();
+        String texto;
+        try {
+            texto = doc.getText(0, doc.getLength());
+        } catch (BadLocationException ex) {
+            return;
+        }
+
+        // Restablecer color normal (negro)
+        SimpleAttributeSet attrDefault = new SimpleAttributeSet();
+        StyleConstants.setForeground(attrDefault, Color.BLACK);
+        doc.setCharacterAttributes(0, texto.length(), attrDefault, true);
+
+        // Color de las vocales (rojo)
+        SimpleAttributeSet attrVocal = new SimpleAttributeSet();
+        StyleConstants.setForeground(attrVocal, Color.GREEN);
+
+        for (int i = 0; i < texto.length(); i++) {
+            char c = Character.toLowerCase(texto.charAt(i));
+            if ("aeiouáéíóú".indexOf(c) >= 0) {
+                doc.setCharacterAttributes(i, 1, attrVocal, false);
+            }
+        }
+    });
+}
+//Obtiene el texto que el usuario escribió en txtNombre.
+//Pone todo el texto en color negro, para limpiar colores anteriores.
+//Crea un estilo rojo (attrVocal) que se aplicará solo a las vocales.
+//Recorre cada letra del texto:
+//Si la letra está en "aeiouáéíóú", la pinta de rojo.
+//Las demás quedan negras.
+//El código usa StyledDocument, que permite aplicar colores diferentes dentro del mismo campo (JTextPane).
+//Resultado:
+//Cada vez que escribes un nombre y presionas ENTER (o cambias de campo), las vocales se vuelven rojas.
+          
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -26,7 +118,6 @@ public class EstudianteVista extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        txtNombre = new javax.swing.JTextField();
         lblTelefono = new javax.swing.JLabel();
         lblTitulo = new javax.swing.JLabel();
         txtTelefono = new javax.swing.JTextField();
@@ -40,15 +131,14 @@ public class EstudianteVista extends javax.swing.JFrame {
         btnGuardar = new javax.swing.JButton();
         txtGenero = new javax.swing.JTextField();
         lblGenero = new javax.swing.JLabel();
+        lblIdEstudiante = new javax.swing.JLabel();
+        txtIdEstudiante = new javax.swing.JTextField();
+        txtCarrera = new javax.swing.JTextField();
+        lblCarrera = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        txtNombre = new javax.swing.JTextPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
-        txtNombre.setCaretColor(new java.awt.Color(255, 255, 255));
-        txtNombre.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtNombreActionPerformed(evt);
-            }
-        });
 
         lblTelefono.setForeground(new java.awt.Color(0, 204, 204));
         lblTelefono.setText("Ingresar Teléfono");
@@ -105,90 +195,120 @@ public class EstudianteVista extends javax.swing.JFrame {
         lblGenero.setForeground(new java.awt.Color(0, 204, 204));
         lblGenero.setText("Ingresar Género");
 
+        lblIdEstudiante.setBackground(new java.awt.Color(255, 255, 255));
+        lblIdEstudiante.setForeground(new java.awt.Color(0, 204, 204));
+        lblIdEstudiante.setText("Ingresar Id");
+
+        txtIdEstudiante.setCaretColor(new java.awt.Color(255, 255, 255));
+        txtIdEstudiante.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtIdEstudianteActionPerformed(evt);
+            }
+        });
+
+        txtCarrera.setCaretColor(new java.awt.Color(255, 255, 255));
+        txtCarrera.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtCarreraActionPerformed(evt);
+            }
+        });
+
+        lblCarrera.setBackground(new java.awt.Color(255, 255, 255));
+        lblCarrera.setForeground(new java.awt.Color(0, 204, 204));
+        lblCarrera.setText("Ingresar Carrera");
+
+        jScrollPane2.setViewportView(txtNombre);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 355, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGap(53, 53, 53)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                            .addComponent(lblTelefono, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(lblCedula, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                        .addContainerGap()
-                                        .addComponent(lblNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(txtCedula)
-                                    .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(txtTelefono)))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addGap(250, 250, 250)
-                                .addComponent(btnGuardar)))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGap(53, 53, 53)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addGap(38, 38, 38)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(layout.createSequentialGroup()
                                 .addComponent(lblDireccion, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
+                                .addGap(33, 33, 33)
                                 .addComponent(txtDireccion))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(lblTelefono, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(txtTelefono, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(lblNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(lblCarrera, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(lblIdEstudiante, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(lblCedula, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(33, 33, 33)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(txtIdEstudiante, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(txtCarrera, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(txtCedula, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(layout.createSequentialGroup()
                                 .addComponent(lblGenero, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(txtGenero)))))
-                .addContainerGap(190, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(lblTitulo, javax.swing.GroupLayout.PREFERRED_SIZE, 237, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(201, 201, 201))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(txtGenero, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(115, 115, 115)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 434, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(300, 300, 300)
+                        .addComponent(btnGuardar))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(207, 207, 207)
+                        .addComponent(lblTitulo, javax.swing.GroupLayout.PREFERRED_SIZE, 237, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(169, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(52, 52, 52)
+                .addGap(48, 48, 48)
                 .addComponent(lblTitulo)
-                .addGap(42, 42, 42)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblCedula, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(txtCedula, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblIdEstudiante, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtIdEstudiante, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(14, 14, 14)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(16, 16, 16)
+                        .addComponent(lblCarrera, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(txtCarrera, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(17, 17, 17)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblCedula, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE)
+                    .addComponent(txtCedula, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(30, 30, 30)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblTelefono, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtTelefono, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblDireccion, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtDireccion, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(26, 26, 26)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtGenero, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblGenero, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(16, 16, 16)
+                    .addComponent(lblGenero, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtGenero, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(25, 25, 25)
                 .addComponent(btnGuardar)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(12, 12, 12))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void txtNombreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNombreActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtNombreActionPerformed
 
     private void txtTelefonoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTelefonoActionPerformed
         // TODO add your handling code here:
@@ -203,26 +323,45 @@ public class EstudianteVista extends javax.swing.JFrame {
     }//GEN-LAST:event_txtDireccionActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        // OBTENER LA INFORMACION INGRESADA POR EL USUARIO
-        String genero = txtGenero.getText();
-        boolean c1=genero.equalsIgnoreCase("Masculino");
-        Estudiante e=new Estudiante(txtNombre.getText(),txtCedula.getText(),txtTelefono.getText(),txtDireccion.getText(),true);
-        if(genero.equalsIgnoreCase("Masculino")==true){
-            e.setGenero(true);
-        }else{
-            e.setGenero(false);
-      }
-        if(c1==true){
-            e.setGenero(true);
-        }else{
-            e.setGenero(false);
-        }
-        txtAResultado.setText(e.imprimirEstudiante());
+                                                   
+    String genero = txtGenero.getText();
+    boolean c1 = genero.equalsIgnoreCase("Masculino");
+
+    Estudiante e = new Estudiante(
+        txtNombre.getText(),
+        txtCedula.getText(),
+        txtTelefono.getText(),
+        txtDireccion.getText(),
+        c1
+    );
+
+    txtAResultado.setText(e.imprimirEstudiante());
+
+    // Actualiza el id para el próximo estudiante
+    txtIdEstudiante.setText(String.valueOf(Estudiante.getIdEstudiante() + 1));
+
+    // Limpia los campos
+    txtNombre.setText("");
+    txtCedula.setText("");
+    txtTelefono.setText("");
+    txtDireccion.setText("");
+    txtGenero.setText("");
+
+
+        
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void txtGeneroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtGeneroActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtGeneroActionPerformed
+
+    private void txtIdEstudianteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtIdEstudianteActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtIdEstudianteActionPerformed
+
+    private void txtCarreraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCarreraActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtCarreraActionPerformed
 
     /**
      * @param args the command line arguments
@@ -262,17 +401,22 @@ public class EstudianteVista extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnGuardar;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JLabel lblCarrera;
     private javax.swing.JLabel lblCedula;
     private javax.swing.JLabel lblDireccion;
     private javax.swing.JLabel lblGenero;
+    private javax.swing.JLabel lblIdEstudiante;
     private javax.swing.JLabel lblNombre;
     private javax.swing.JLabel lblTelefono;
     private javax.swing.JLabel lblTitulo;
     private javax.swing.JTextArea txtAResultado;
+    private javax.swing.JTextField txtCarrera;
     private javax.swing.JTextField txtCedula;
     private javax.swing.JTextField txtDireccion;
     private javax.swing.JTextField txtGenero;
-    private javax.swing.JTextField txtNombre;
+    private javax.swing.JTextField txtIdEstudiante;
+    private javax.swing.JTextPane txtNombre;
     private javax.swing.JTextField txtTelefono;
     // End of variables declaration//GEN-END:variables
 }

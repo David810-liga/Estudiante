@@ -9,15 +9,25 @@ package com.mycompany.estudiantee;
  * @author User
  */
 public class Estudiante {
+   private static int idEstudiante = 100;
+   private static String carrera = "T. S. Desarrollo de Software";
    private String nombre;
    private String cedula;
    private String telefono;
    private String direccion;
    private boolean genero;//true-M, false-F
-    public Estudiante() {
+   
+   public static String getCarrera() {
+        return carrera;
+    }
+   public Estudiante() {
+       idEstudiante++;
+       getCarrera();
     }
 
-    public Estudiante(String nombre, String cedula, String telefono, String direccion, boolean genero) {
+    public Estudiante( String nombre, String cedula, String telefono, String direccion, boolean genero) {
+        this.idEstudiante = idEstudiante +1;
+        getCarrera();
         this.nombre = nombre;
         this.cedula = cedula;
         this.telefono = telefono;
@@ -25,6 +35,11 @@ public class Estudiante {
         this.genero = genero;
     }
 
+    public static int getIdEstudiante() {
+        return idEstudiante;
+    }
+
+    
     public String getNombre() {
         return nombre;
     }
@@ -77,6 +92,7 @@ public class Estudiante {
     @Override
     public String toString() {
         return "Datos del Estudiante"+"\n"+
+                "IdEstudiante:"+getIdEstudiante()+"\n"+
                 "Nombre: "+getNombre()+"\n"+
                 "Cedula: "+getCedula()+"\n"+
                 "Direccion: "+getDireccion()+"\n"+
@@ -86,6 +102,8 @@ public class Estudiante {
     //DE NO RETORNO
     public void imprimir(){
         System.out.println("DATOS PERSONALES"+"\n"+
+                "IdEstudiante:"+this.idEstudiante+"\n"+
+                "Carrera:"+carrera+"\n"+
                 "Nombres:"+this.nombre+"\n"+
                 "Cédula:"+cedula+"\n"+
                 "Dirección:"+getDireccion()+"\n"+
@@ -97,6 +115,7 @@ public class Estudiante {
     //RETORNO
     public String imprimirEstudiante(){
          return "DATOS PERSONALES"+"\n"+
+                "IdEstudiante:"+this.idEstudiante+"\n"+
                 "Nombres:"+this.nombre+"\n"+
                 "Cédula:"+cedula+"\n"+
                 "Dirección:"+getDireccion()+"\n"+
